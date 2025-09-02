@@ -15,6 +15,12 @@ These results underscore HRM’s potential as a transformative advancement towar
 
 ### Prerequisites ⚙️
 
+**The HRM model now supports multiple platforms:**
+- **NVIDIA GPUs**: CUDA (recommended for best performance)
+- **Apple Silicon Macs**: Metal Performance Shaders (MPS)
+- **CPU-only systems**: Fallback support
+
+#### For NVIDIA GPUs (Linux/Windows)
 Ensure PyTorch and CUDA are installed. The repo needs CUDA extensions to be built. If not present, run the following commands:
 
 ```bash
@@ -48,6 +54,29 @@ For Ampere or earlier GPUs, install FlashAttention 2
 ```bash
 pip3 install flash-attn
 ```
+
+#### For Apple Silicon Macs (macOS)
+HRM now supports Metal Performance Shaders (MPS) on Apple Silicon Macs:
+
+```bash
+# Install PyTorch with MPS support
+pip3 install torch torchvision torchaudio
+
+# Note: FlashAttention is not required on macOS as MPS provides optimized attention
+```
+
+#### For CPU-only systems
+You can run HRM on CPU-only systems (though training will be significantly slower):
+
+```bash
+# Install CPU-only PyTorch
+pip3 install torch torchvision torchaudio --index-url https://download.pytorch.org/whl/cpu
+```
+
+**Device Detection**: The system automatically detects the best available device in this order:
+1. CUDA (NVIDIA GPUs) 
+2. MPS (Apple Silicon)
+3. CPU (fallback)
 
 ## Install Python Dependencies 🐍
 
@@ -176,8 +205,16 @@ OMP_NUM_THREADS=8 torchrun --nproc-per-node 8 evaluate.py checkpoint=<CHECKPOINT
 
 ## Notes
 
+### Platform Performance 🔧
+
+- **NVIDIA GPUs (CUDA)**: Best performance, full FlashAttention support
+- **Apple Silicon (MPS)**: Good performance with Metal optimization, no FlashAttention needed
+- **CPU**: Functional but significantly slower, recommended only for small experiments
+
+### Training Notes
  - Small-sample learning typically exhibits accuracy variance of around ±2 points.
  - For Sudoku-Extreme (1,000-example dataset), late-stage overfitting may cause numerical instability during training and Q-learning. It is advisable to use early stopping once the training accuracy approaches 100%.
+ - Multi-GPU training (`torchrun --nproc-per-node 8`) is currently supported only on CUDA systems.
 
 ## Citation 📜
 
